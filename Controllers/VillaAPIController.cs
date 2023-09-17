@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 using Villa_Api.Data;
 using Villa_Api.Model;
 using Villa_Api.Model.DTO;
@@ -63,6 +64,62 @@ namespace Villa_Api.Controllers
             return CreatedAtRoute("GetVilla" ,new {id = villadto.id},villadto);
         }
 
+        [HttpDelete ("{id:int}", Name = "Deletevilla")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+        public IActionResult DeleteVilla(int id)
+        {
+            if(id == 0)
+            {
+                return BadRequest();
+            }
+            var villa = VillaStore.VillaList.FirstOrDefault(u => u.id == id);
+            if(villa == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+            VillaStore.VillaList.Remove(villa);
+            return NoContent();
+        }
+
+        [HttpPut("{id:int}", Name = "Updatevilla")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+        public IActionResult UpdateVilla(int id, [FromBody]VillaDTO villadto)
+        {
+            if (id != villadto.id || villadto == null)
+            {
+                return BadRequest();
+            }
+            var villa = VillaStore.VillaList.FirstOrDefault(u => u.id == id);
+            villa.name = villadto.name;
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}", Name = "Patchvilla")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+        public IActionResult UpdateVilla(int id, JsonPatchDocument<VillaDTO> patchdto)
+        {
+            if (id == 0 || patchdto == null)
+            {
+                return BadRequest();
+            }
+            var villa = VillaStore.VillaList.FirstOrDefault(u => u.id == id);
+            patchdto.ApplyTo(villa, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            return NoContent();
+        }
     }
 }
 
