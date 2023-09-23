@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Villa_Api.Data;
 using Villa_Api.Model;
 using Villa_Api.Model.DTO;
+using Villa_Api.Logging;
 
 namespace Villa_Api.Controllers
 {
@@ -11,12 +12,19 @@ namespace Villa_Api.Controllers
     [ApiController]
     public class VillaAPIController : ControllerBase
 	{
+        private readonly ILogging _loggerc;
+        public VillaAPIController(ILogging loggerc)
+        {
+            _loggerc = loggerc;
+        }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public ActionResult<IEnumerable<VillaDTO>> GetVillas()
 		{
+            _loggerc.Log("Retriving all villa", "not an error");
 			return Ok(VillaStore.VillaList);
 		}
 
