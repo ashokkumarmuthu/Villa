@@ -1,4 +1,6 @@
-﻿using Villa_Api.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Villa_Api.Data;
+using Villa_Api.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,7 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File("log/villaLog.txt", rollingInterval: RollingInterval.Day).CreateLogger();
 //builder.Host.UseSerilog();
-
+builder.Services.AddDbContext<ApplicationDbContext>(Options =>
+{
+    Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
+});
 builder.Services.AddControllers(option =>
 {
     option.ReturnHttpNotAcceptable = true;
