@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.EntityFrameworkCore;
 using Villa_Api.Data;
 using Villa_Api.Model;
 using Villa_Api.Model.DTO;
@@ -138,7 +139,7 @@ namespace Villa_Api.Controllers
             {
                 return BadRequest();
             }
-            var villa = _db.Villas.FirstOrDefault(u => u.id == id);
+            var villa = _db.Villas.AsNoTracking().FirstOrDefault(u => u.id == id);
             VillaDTO modelDTO = new()
             {
                 name = villa.name,
