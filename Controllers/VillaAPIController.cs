@@ -13,9 +13,11 @@ namespace Villa_Api.Controllers
     public class VillaAPIController : ControllerBase
 	{
         private readonly ILogging _loggerc;
-        public VillaAPIController(ILogging loggerc)
+        private readonly ApplicationDbContext _db;
+        public VillaAPIController(ILogging loggerc, ApplicationDbContext db)
         {
             _loggerc = loggerc;
+            _db = db;
         }
 
         [HttpGet]
@@ -25,7 +27,7 @@ namespace Villa_Api.Controllers
 		public ActionResult<IEnumerable<VillaDTO>> GetVillas()
 		{
             _loggerc.Log("Retriving all villa", "not an error");
-			return Ok(VillaStore.VillaList);
+			return Ok(_db.Villas.ToList());
 		}
 
 
@@ -40,13 +42,13 @@ namespace Villa_Api.Controllers
                 return BadRequest();
             }
 
-            var villa = VillaStore.VillaList.FirstOrDefault(u => u.id == id);
+            var villa = _db.Villas.FirstOrDefault(u => u.id == id);
             if(villa == null)
             {
                 return NotFound();
             }
 
-            return Ok(VillaStore.VillaList.FirstOrDefault(u=>u.id==id));
+            return Ok(_db.Villas.FirstOrDefault(u=>u.id==id));
         }
 
         [HttpPost]
@@ -66,9 +68,17 @@ namespace Villa_Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            villadto.id = VillaStore.VillaList.OrderByDescending(u => u.id).FirstOrDefault().id + 1;
+            // villadto.id = VillaStore.VillaList.OrderByDescending(u => u.id).FirstOrDefault().id + 1;
 
-            VillaStore.VillaList.Add(villadto);
+            Villa model = new()
+            {
+                name = villadto.name,
+                Sqft = villadto.Sqft,
+                Occupancy = villadto.Occupancy
+            };
+            _db.Villas.Add(model);
+            _db.SaveChanges();
+            // VillaStore.VillaList.Add(villadto);
             return CreatedAtRoute("GetVilla" ,new {id = villadto.id},villadto);
         }
 
@@ -83,12 +93,13 @@ namespace Villa_Api.Controllers
             {
                 return BadRequest();
             }
-            var villa = VillaStore.VillaList.FirstOrDefault(u => u.id == id);
+            var villa = _db.Villas.FirstOrDefault(u => u.id == id);
             if(villa == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound);
             }
-            VillaStore.VillaList.Remove(villa);
+            _db.Villas.Remove(villa);
+            _db.SaveChanges();
             return NoContent();
         }
 
@@ -103,8 +114,16 @@ namespace Villa_Api.Controllers
             {
                 return BadRequest();
             }
-            var villa = VillaStore.VillaList.FirstOrDefault(u => u.id == id);
-            villa.name = villadto.name;
+            var villa = _db.Villas.FirstOrDefault(u => u.id == id);
+            // villa.name = villadto.name;
+            Villa model = new()
+            {
+                name = villadto.name,
+                Sqft = villadto.Sqft,
+                Occupancy = villadto.Occupancy
+            };
+            _db.Villas.Update(model);
+            _db.SaveChanges();
 
             return NoContent();
         }
@@ -119,8 +138,22 @@ namespace Villa_Api.Controllers
             {
                 return BadRequest();
             }
-            var villa = VillaStore.VillaList.FirstOrDefault(u => u.id == id);
-            patchdto.ApplyTo(villa, ModelState);
+            var villa = _db.Villas.FirstOrDefault(u => u.id == id);
+            VillaDTO modelDTO = new()
+            {
+                name = villa.name,
+                Sqft = villa.Sqft,
+                Occupancy = villa.Occupancy
+            };
+            patchdto.ApplyTo(modelDTO, ModelState);
+            Villa model = new()
+            {
+                name = modelDTO.name,
+                Sqft = modelDTO.Sqft,
+                Occupancy = modelDTO.Occupancy
+            };
+            _db.Villas.Add(model);
+            _db.SaveChanges();
 
             if (!ModelState.IsValid)
             {

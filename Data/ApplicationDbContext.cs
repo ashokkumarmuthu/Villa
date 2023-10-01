@@ -10,4 +10,20 @@ public class ApplicationDbContext : DbContext
         
     }
     public DbSet<Villa> Villas { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Villa>().HasData(
+            new Villa
+            {
+                id = 1,
+                CreatedDate = DateTime.Now,
+                name = "Ashok",
+                Occupancy = 10000,
+                rate = 20,
+                Sqft = 10,
+                UpdatedDate = DateTime.Now
+            }
+        );
+    }
 }
