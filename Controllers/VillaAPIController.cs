@@ -58,16 +58,16 @@ namespace Villa_Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public ActionResult<VillaDTO> CreateVilla(VillaDTO villadto)
+        public ActionResult<VillaDTO> CreateVilla(VillaCreateDTO villadto)
         {
             if(villadto == null)
             {
                 return BadRequest();
             }
-            if(villadto.id > 0)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            // if(villadto.id > 0)
+            // {
+            //     return StatusCode(StatusCodes.Status500InternalServerError);
+            // }
 
             // villadto.id = VillaStore.VillaList.OrderByDescending(u => u.id).FirstOrDefault().id + 1;
 
@@ -80,7 +80,7 @@ namespace Villa_Api.Controllers
             _db.Villas.Add(model);
             _db.SaveChanges();
             // VillaStore.VillaList.Add(villadto);
-            return CreatedAtRoute("GetVilla" ,new {id = villadto.id},villadto);
+            return CreatedAtRoute("GetVilla" ,new {id = model.id},model);
         }
 
         [HttpDelete ("{id:int}", Name = "Deletevilla")]
@@ -109,7 +109,7 @@ namespace Villa_Api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
-        public IActionResult UpdateVilla(int id, [FromBody]VillaDTO villadto)
+        public IActionResult UpdateVilla(int id, [FromBody]VillaUpdateDTO villadto)
         {
             if (id != villadto.id || villadto == null)
             {
@@ -133,14 +133,14 @@ namespace Villa_Api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
-        public IActionResult UpdateVilla(int id, JsonPatchDocument<VillaDTO> patchdto)
+        public IActionResult UpdateVilla(int id, JsonPatchDocument<VillaUpdateDTO> patchdto)
         {
             if (id == 0 || patchdto == null)
             {
                 return BadRequest();
             }
             var villa = _db.Villas.AsNoTracking().FirstOrDefault(u => u.id == id);
-            VillaDTO modelDTO = new()
+            VillaUpdateDTO modelDTO = new()
             {
                 name = villa.name,
                 Sqft = villa.Sqft,
