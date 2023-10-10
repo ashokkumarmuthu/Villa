@@ -23,6 +23,16 @@ public class ApplicationDbContext : DbContext
                 rate = 20,
                 Sqft = 10,
                 UpdatedDate = DateTime.Now
+            },
+            new Villa
+            {
+                id = 2,
+                CreatedDate = DateTime.Now,
+                name = "Kumar",
+                Occupancy = 10000,
+                rate = 20,
+                Sqft = 10,
+                UpdatedDate = DateTime.Now
             }
         );
     }

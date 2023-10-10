@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Villa_Api.Data;
 using Villa_Api.Logging;
+using Villa_Api.Repository;
+using Villa_Api.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(Options =>
 {
     Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 });
+builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 builder.Services.AddAutoMapper(typeof(Villa_Api.AutoMapperConfig));
 builder.Services.AddControllers(option =>
 {
