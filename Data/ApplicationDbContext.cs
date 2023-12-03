@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext
         
     }
     public DbSet<Villa> Villas { get; set; }
+    public DbSet<VillaNumber> VillaNumber { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +33,22 @@ public class ApplicationDbContext : DbContext
                 Occupancy = 10000,
                 rate = 20,
                 Sqft = 10,
+                UpdatedDate = DateTime.Now
+            }
+        );
+        modelBuilder.Entity<VillaNumber>().HasData(
+            new VillaNumber
+            {
+                VillaNo = 1,
+                SpecialDetails = "Blue",
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            },
+            new VillaNumber
+            {
+                VillaNo = 2,
+                SpecialDetails = "Orange",
+                CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             }
         );
