@@ -33,7 +33,7 @@ namespace Villa_Api.Controllers
 		{
             _loggerc.Log("Getting all villa", "not an error");
             IEnumerable<Villa> villaList = await _dbVilla.GetAll();
-			return Ok(_mapper.Map<VillaDTO>(villaList));
+			return Ok(_mapper.Map<List<VillaDTO>>(villaList));
         }
 
 
