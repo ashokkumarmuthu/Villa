@@ -1,35 +1,39 @@
 using System.Linq.Expressions;
+using System.Runtime;
 using Microsoft.EntityFrameworkCore;
 using Villa_Api.Data;
 using Villa_Api.Model;
+using Villa_Api.Repository.IRepository;
 using Villa_Api.Services.IServices;
 
 namespace Villa_Api.Services;
 
 public class VillaService: IVillaService
 {
-    private readonly ApplicationDbContext _db;
-    internal DbSet<Villa> dbset;
-    public VillaService(ApplicationDbContext db)
+    private readonly IVillaRepository _repo;
+    public VillaService(IVillaRepository db)
     {
-        _db = db;
-        this.dbset = _db.Set<Villa>();
+        _repo = db;
     }
     public async Task Create(Villa entity)
     {
-        await dbset.AddAsync(entity);
-        await Save();
+        await _repo.Create(entity);
     }
 
+    public async Task<Villa> Update(Villa entity)
+    {
+        entity.UpdatedDate = DateTime.Now;
+        entity = await _repo.Update(entity);
+        return entity;
+    }
     public async Task Remove(Villa entity)
     {
-        dbset.Remove(entity);
-        await Save();
+        await _repo.Remove(entity);
     }
 
     public async Task<Villa> Get(Expression<Func<Villa, bool>> filter = null, bool tracked = true)
     {
-        IQueryable<Villa> query = dbset;
+        IQueryable<Villa> query = _repo.Getdb();
         if (!tracked)
         {
             query = query.AsNoTracking();
@@ -45,15 +49,11 @@ public class VillaService: IVillaService
 
     public async Task<List<Villa>> GetAll(Expression<Func<Villa, bool>>? filter = null)
     {
-        IQueryable<Villa> query = dbset;
+        IQueryable<Villa> query = _repo.Getdb();
         if (filter != null)
         {
             query = query.Where(filter);
         }
         return await query.ToListAsync();
-    }
-    public async Task Save()
-    {
-        await _db.SaveChangesAsync();
     }
 }

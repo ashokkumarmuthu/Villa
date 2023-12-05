@@ -7,7 +7,7 @@ public interface IVillaService
 {
     Task Create(Villa entity);
     Task Remove(Villa entity);
+    Task<Villa> Update(Villa entity);
     Task<Villa> Get(Expression<Func<Villa,bool>> filter = null, bool tracked = true);
     Task<List<Villa>> GetAll(Expression<Func<Villa,bool>>? filter = null);
-    Task Save();
 }

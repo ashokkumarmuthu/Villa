@@ -8,6 +8,7 @@ using Villa_Api.Model;
 using Villa_Api.Model.DTO;
 using Villa_Api.Logging;
 using Villa_Api.Repository.IRepository;
+using Villa_Api.Services.IServices;
 
 namespace Villa_Api.Controllers
 {
@@ -16,13 +17,13 @@ namespace Villa_Api.Controllers
     public class VillaAPIController : ControllerBase
 	{
         private readonly ILogging _loggerc;
-        private readonly IVillaRepository _dbVilla;
+        private readonly IVillaService _villaService;
         private readonly IMapper _mapper;
-        public VillaAPIController(ILogging loggerc, IVillaRepository dbVilla, IMapper mapper)
+        public VillaAPIController(ILogging loggerc, IVillaRepository dbVilla, IMapper mapper, IVillaService villaService)
         {
             _loggerc = loggerc;
-            _dbVilla = dbVilla;
             _mapper = mapper;
+            _villaService = villaService;
         }
 
         [HttpGet]
@@ -32,7 +33,7 @@ namespace Villa_Api.Controllers
 		public async Task<ActionResult<IEnumerable<VillaDTO>>> GetVillas()
 		{
             _loggerc.Log("Getting all villa", "not an error");
-            IEnumerable<Villa> villaList = await _dbVilla.GetAll();
+            IEnumerable<Villa> villaList = await _villaService.GetAll();
 			return Ok(_mapper.Map<List<VillaDTO>>(villaList));
         }
 
@@ -48,7 +49,7 @@ namespace Villa_Api.Controllers
                 return BadRequest();
             }
 
-            var villa = await _dbVilla.Get(u => u.id == id);
+            var villa = await _villaService.Get(u => u.id == id);
             if (villa == null)
             {
                 return NotFound();
@@ -70,7 +71,7 @@ namespace Villa_Api.Controllers
             }
             var model = _mapper.Map<Villa>(createDto);
             
-            await _dbVilla.Create(model);
+            await _villaService.Create(model);
             return CreatedAtRoute("GetVilla" ,new {id = model.id},model);
         }
 
@@ -85,12 +86,12 @@ namespace Villa_Api.Controllers
             {
                 return BadRequest();
             }
-            var villa = await _dbVilla.Get(u => u.id == id);
+            var villa = await _villaService.Get(u => u.id == id);
             if(villa == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound);
             }
-            await _dbVilla.Remove(villa);
+            await _villaService.Remove(villa);
             return NoContent();
         }
 
@@ -107,7 +108,7 @@ namespace Villa_Api.Controllers
             }
             Villa model = _mapper.Map<Villa>(updateDto);
             
-            await _dbVilla.Update(model);
+            await _villaService.Update(model);
             return NoContent();
         }
 
@@ -121,14 +122,14 @@ namespace Villa_Api.Controllers
             {
                 return BadRequest();
             }
-            var villa = await _dbVilla.Get(u => u.id == id,false);
+            var villa = await _villaService.Get(u => u.id == id,false);
 
             var modelDTO = _mapper.Map<VillaUpdateDTO>(villa); 
             patchdto.ApplyTo(modelDTO, ModelState);
 
             var model = _mapper.Map<Villa>(modelDTO);
             
-            await _dbVilla.Create(model);
+            await _villaService.Create(model);
 
             if (!ModelState.IsValid)
             {
